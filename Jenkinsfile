@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git url: 'git@github.com:girisettyramakrishna/DF_v2.git', credentialsId: 'your-creds-id'
+                git url: 'git@github.com:girisettyramakrishna/DF_v2.git', credentialsId: '59231f85-1790-4533-9f92-52b4dd78d915'
             }
         }
 
