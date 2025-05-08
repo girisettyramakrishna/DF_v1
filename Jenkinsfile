@@ -2,7 +2,6 @@ pipeline {
     agent any
     
     environment {
-        // Define environment variables here, like paths to R libraries if needed
         SHINY_SERVER_PATH = '/srv/shiny-server/demand_forecasting'
     }
     
@@ -15,14 +14,13 @@ pipeline {
             }
         }
         
-        // Install R dependencies (if needed) - adjust based on your project
+        // Skip the 'Install Dependencies' stage if the necessary packages are already installed
         stage('Install Dependencies') {
             steps {
-                sh '''
-                    sudo apt-get update
-                    sudo apt-get install -y r-base
-                    Rscript -e "install.packages(c('forecast', 'shiny', 'shinydashboard'))"
-                '''
+                script {
+                    // You can check if dependencies are already installed, or just comment out if not needed
+                    echo 'Skipping Install Dependencies stage as packages are already installed on the Jenkins server.'
+                }
             }
         }
 
