@@ -1,48 +1,54 @@
 pipeline {
     agent any
-
+    
     environment {
-        R_LIBS_USER = "${HOME}/R/x86_64-pc-linux-gnu-library/4.3"
+        // Define environment variables here, like paths to R libraries if needed
+        SHINY_SERVER_PATH = '/srv/shiny-server/demand_forecasting'
     }
-
+    
     stages {
-        stage('Clone Repository') {
+        
+        // Checkout the code from the repository
+        stage('Checkout') {
             steps {
-                git url: 'git@github.com:girisettyramakrishna/DF_v2.git', credentialsId: '59231f85-1790-4533-9f92-52b4dd78d915'
+                checkout scm
             }
         }
-
-        stage('Install R Packages') {
+        
+        // Install R dependencies (if needed) - adjust based on your project
+        stage('Install Dependencies') {
             steps {
                 sh '''
-                    Rscript -e "packages <- c('shiny', 'rsconnect'); new.packages <- packages[!(packages %in% installed.packages())]; if(length(new.packages)) install.packages(new.packages, repos='https://cloud.r-project.org/')"
+                    sudo apt-get update
+                    sudo apt-get install -y r-base
+                    Rscript -e "install.packages(c('forecast', 'shiny', 'shinydashboard'))"
                 '''
             }
         }
 
-        stage('Test App') {
-            steps {
-                sh 'Rscript -e "shiny::runApp(\'.\', port=8080, launch.browser=FALSE)" & sleep 5 && curl -f http://localhost:8080 || exit 1'
-            }
-        }
-
-        stage('Deploy to shinyapps.io') {
+        // Deploy the app to Shiny Server
+        stage('Deploy to Shiny Server') {
             steps {
                 sh '''
-                    Rscript -e "rsconnect::setAccountInfo(name='psmlabs', token='8FAB74BDBB46C9CA05D75B7102711773', secret='9a6AwJZn3QacJOlVCdzWv6Ptj34mOsuIRE3OuNDI')"
-                    Rscript -e "rsconnect::deployApp(appDir = '.', appName = 'DF_v2')"
+                    # Copy the R app to Shiny Server directory
+                    sudo cp -r * $SHINY_SERVER_PATH/
+                    
+                    # Set appropriate permissions for Shiny Server to access
+                    sudo chown -R shiny:shiny $SHINY_SERVER_PATH
+                    sudo systemctl restart shiny-server
                 '''
             }
         }
+        
     }
-
+    
     post {
-        failure {
-            echo 'Pipeline failed.'
-        }
         success {
-            echo 'Pipeline completed successfully.'
+            echo 'Deployment Successful!'
+        }
+        
+        failure {
+            echo 'Deployment Failed!'
         }
     }
 }
-
