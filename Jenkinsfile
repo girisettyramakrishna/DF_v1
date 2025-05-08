@@ -41,7 +41,7 @@ pipeline {
                     ls -alh
 
                     # Copy the required files to the Shiny Server directory (use quotes for file names with spaces)
-                    sudo cp -r "Jenkinsfile" "Latest" "New" "folder" "Product_data.csv" "_Rhistory" "app.R" "b.csv" "bivariate.R" "data" "data.R" "deploy.R" "error.csv" "forecast" "forecast.R" "multi.csv" "myoutputfile.html" "output.R" "packages_to_be_installed.R" "uni_error.csv" "univariate.R" "www" $SHINY_SERVER_PATH/
+                    sudo cp -r "Jenkinsfile" "Latest" "New folder" "Product_data.csv" "_Rhistory" "app.R" "b.csv" "bivariate.R" "data" "data.R" "deploy.R" "error.csv" "forecast" "forecast.R" "multi.csv" "myoutputfile.html" "output.R" "packages_to_be_installed.R" "uni_error.csv" "univariate.R" "www" $SHINY_SERVER_PATH/
 
                     # Set appropriate permissions for Shiny Server to access
                     sudo chown -R shiny:shiny $SHINY_SERVER_PATH
