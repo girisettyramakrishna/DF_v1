@@ -4,7 +4,7 @@ pipeline {
     environment {
         APP_NAME = "demand_forecasting"
         DEPLOY_DIR = "/srv/shiny-server/${APP_NAME}"
-        GIT_REPO = "https://github.com/girisettyramakrishna/DF_pipeline.git"
+        GIT_REPO = "https://github.com/girisettyramakrishna/DF_v1.git"
     }
 
     stages {
@@ -19,7 +19,7 @@ pipeline {
                 sh '''
                     echo "Cleaning old deployment..."
                     sudo rm -rf ${DEPLOY_DIR}
-                    
+
                     echo "Creating new deployment directory..."
                     sudo mkdir -p ${DEPLOY_DIR}
 
@@ -41,10 +41,10 @@ pipeline {
 
     post {
         success {
-            echo "Deployment successful. Access the app at: http://192.168.42.105:3838/${APP_NAME}/"
+            echo "✅ Deployment successful. App is available at: http://192.168.42.105:3838/${APP_NAME}/"
         }
         failure {
-            echo "Deployment failed. Check logs for details."
+            echo "❌ Deployment failed. Please check the Jenkins logs for error details."
         }
     }
 }
