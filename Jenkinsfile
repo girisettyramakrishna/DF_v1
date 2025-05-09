@@ -41,7 +41,7 @@ pipeline {
 
     post {
         success {
-            echo "✅ Deployment successful. App is available at: http://192.168.42.105:3838/${APP_NAME}/"
+            echo "✅ Deployment successful. App is available at: http://192.168.0.109:3838/${APP_NAME}/"
         }
         failure {
             echo "❌ Deployment failed. Please check the Jenkins logs for error details."
