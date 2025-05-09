@@ -1,66 +1,50 @@
 pipeline {
     agent any
-    
+
     environment {
-        SHINY_SERVER_PATH = '/srv/shiny-server/demand_forecasting'
+        APP_NAME = "demand_forecasting"
+        DEPLOY_DIR = "/srv/shiny-server/${APP_NAME}"
+        GIT_REPO = "https://github.com/girisettyramakrishna/DF_pipeline.git"
     }
-    
+
     stages {
-        
-        // Checkout the code from the Git repository
         stage('Checkout') {
             steps {
-                checkout scm
-            }
-        }
-        
-        // Install Dependencies (skipping this stage as packages are already installed)
-        stage('Install Dependencies') {
-            steps {
-                script {
-                    echo 'Skipping Install Dependencies stage as packages are already installed on the Jenkins server.'
-                }
+                git url: "${GIT_REPO}", branch: 'master'
             }
         }
 
-        // Deploy the app to Shiny Server
-        stage('Deploy to Shiny Server') {
+        stage('Deploy App to Shiny Server') {
             steps {
-                script {
-                    // Debugging: List the contents of the workspace
-                    echo 'Listing workspace contents:'
-                    sh 'ls -alh'
-                }
-                
                 sh '''
-                    # Ensure the Shiny Server directory exists
-                    sudo mkdir -p $SHINY_SERVER_PATH
+                    echo "Cleaning old deployment..."
+                    sudo rm -rf ${DEPLOY_DIR}
                     
-                    # Debugging: Check if files exist
-                    echo "Checking if required files exist:"
-                    ls -alh
+                    echo "Creating new deployment directory..."
+                    sudo mkdir -p ${DEPLOY_DIR}
 
-                    # Copy the required files to the Shiny Server directory (use quotes for file names with spaces)
-                    sudo cp -r "Jenkinsfile" "Latest" "New folder" "Product_data.csv" "_Rhistory" "app.R" "b.csv" "bivariate.R" "data" "data.R" "deploy.R" "error.csv" "forecast" "forecast.R" "multi.csv" "myoutputfile.html" "output.R" "packages_to_be_installed.R" "uni_error.csv" "univariate.R" "www" $SHINY_SERVER_PATH/
+                    echo "Copying files to deployment directory..."
+                    sudo cp -r * ${DEPLOY_DIR}/
 
-                    # Set appropriate permissions for Shiny Server to access
-                    sudo chown -R shiny:shiny $SHINY_SERVER_PATH
-                    
-                    # Restart Shiny Server to apply changes
-                    sudo systemctl restart shiny-server
+                    echo "Changing ownership to shiny user..."
+                    sudo chown -R shiny:shiny ${DEPLOY_DIR}
                 '''
             }
         }
-        
+
+        stage('Restart Shiny Server') {
+            steps {
+                sh 'sudo systemctl restart shiny-server'
+            }
+        }
     }
-    
+
     post {
         success {
-            echo 'Deployment Successful!'
+            echo "Deployment successful. Access the app at: http://192.168.42.105:3838/${APP_NAME}/"
         }
-        
         failure {
-            echo 'Deployment Failed!'
+            echo "Deployment failed. Check logs for details."
         }
     }
 }
